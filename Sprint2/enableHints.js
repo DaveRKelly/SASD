@@ -1,3 +1,4 @@
+//@Author Dave Kelly
 function doTip(e) {
 	var elem = e.toElement;
 	if(elem.getAttribute('data-tip-on')  === 'false') {
