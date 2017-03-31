@@ -31,40 +31,31 @@
 				for(var i = 0; i < elems.length; i++) { 
 				elems[i].addEventListener("click", doTip, false);
 			}
+			window.onload = function() {
+				enableTips();
+			}
+		</script>
+		<style>
+			.quick-tip {
+        		background: black;
+        		color: #fff;
+        		padding: 5px;
+        		cursor: pointer;
+        		height: 15px;
+        		width: 15px;
+        		text-align: center;
+        		font-weight: 900;
+        		margin-left: 350px;
 		}
-		window.onload = function() {
-			enableTips();
-		}
-	</script>
-	<style>
-		.quick-tip {
-        	background: black;
-        	color: #fff;
-        	padding: 5px;
-        	cursor: pointer;
-        	height: 15px;
-        	width: 15px;
-        	text-align: center;
-        	font-weight: 900;
-        	margin-left: 350px;
-	}
-	.tip-box {
-		/* change dimensions to be whatever the background image is */
-		height: 50px;
-        	width: 200px;
-        	background: grey;
-        	border: 1px solid black; 
-        	position: absolute;
-    	}
-	</style>
-
-
-<div class="quick-tip" data-tip="THIS IS THE TIP! change elements 'data-tip' to change." data-tip-on="false">?</div>
-
-<script>enableTips(); //might be required for jsfiddle, especially with reloads.</script>
-
-
-
-
+		.tip-box {
+			/* change dimensions to be whatever the background image is */
+			height: 50px;
+        		width: 200px;
+        		background: grey;
+        		border: 1px solid black; 
+        		position: absolute;
+    		}
+		</style>
+		<div class="quick-tip" data-tip="THIS IS THE TIP! change elements 'data-tip' to change." data-tip-on="false">?</div>
 	</body>
 </html>
