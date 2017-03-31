@@ -1,20 +1,26 @@
 /* @Author Dave Kelly */
-.quick-tip {
-	background: black;
-	color: #fff;
-	padding: 5px;
-	cursor: pointer;
-	height: 15px;
-	width: 15px;
-	text-align: center;
-	font-weight: 900;
-	margin-left: 50px;
+.tooltip {
+	position: relative;
+	display: inline-block;
+	border-bottom: 1px dotted black;
+	transition: 0s background-color;
 }
-.tip-box {
-	/* change dimensions to be whatever the background image is */
-	height: 50px;
-	width: 200px;
-	background: grey;
-	border: 1px solid black; 
+.tooltip .tooltiptext {
+	visibility: hidden;
+	width: 150px;
+	text-align: center;
+	background-color: black;
+	color: #fff;
+	border-radius: 6px;
+	padding: 5px 0;
+	font-size: .75em;
+	top: 15px;
+	transition-delay: .5s;
+	
+	/* Position the tooltip */
 	position: absolute;
+	z-index: 1;
+}
+.tooltip:hover .tooltiptext {
+	visibility: visible;
 }
