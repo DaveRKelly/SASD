@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="tooltips.css">
+
+<title>Fill in the Blanks</title> 
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<style>
+img
+{ 
+	float: left;
+} 
+header 
+{ 
+	background-color:#001455; 
+	height:110px;
+	border: 5px solid #333;
+} 
+header h1 
+{ 
+	color:#FFF;   
+}
+a : link
+{ 
+	decoration:none; 
+}
+button 
+{
+    background-color: #001456;
+    border: 2px solid #333; 
+    color: white;
+    padding: 2px 8px 2px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    margin:0;
+    cursor: pointer;
+}
+#codeArea
+{
+	float: right;
+}
+#userInput
+{
+	position: static;
+	width: 63%
+}
+</style>
+</head> 
+<body onload="restoreState()">
+<script> 
+function updateMathQues() {
+    var TeX = document.getElementById("question").value;
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,TeX]);
+}
+function updateMathHint() {
+    var TeX2 = document.getElementById("solution").value;
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,TeX2]);
+}
+function sendQuestion() 
+{	
+	var question = document.getElementById("question").value; 
+	if(question == "") 
+	{
+		alert("Ooops! You left the question blank. Please try again"); 
+	} 
+	question = checkDollarSigns("question");//calls the function to check for $ in the input
+	var output = document.getElementById("outputQues"); 
+	output.innerHTML = "You asked : " + question;
+	// Present the question in latex style
+	updateMathQues();
+}
+function sendAnswer() 
+{
+	var answer = document.getElementById("answer").value; 
+	if(answer == "") 
+	{
+		alert("Ooops! You left the answer blank. Please try again"); 
+	} 
+	var output = document.getElementById("outputAns"); 
+	output.innerHTML = "You answered : " +answer; 
+}
+function sendSolution() 
+{
+	var solution = document.getElementById("solution").value; 
+	solution = checkDollarSigns("solution");
+	var output = document.getElementById("outputSolution"); 
+	output.innerHTML = "Your solution is : "  +solution; 
+}
+function sendImage(){
+        var output = document.getElementById("outputImage");
+        var width = 500;
+        var height = 500;
+        if(document.getElementById("imageWidth").value != ""){
+                width = document.getElementById("imageWidth").value;
+        }
+        if(document.getElementById("imageHeight").value != ""){
+                height = document.getElementById("imageHeight").value;
+        }
+        output.innerHTML = "<image src=" + document.getElementById("imageText").value + 
+                                " width=" + width + "px" + 
+                                " height=" + height + "px>";
+}
+function sendHint(){
+        var output = document.getElementById("outputHint");
+        var width = 500;
+        var height = 500;
+        if(document.getElementById("imageHintWidth").value != ""){
+                width = document.getElementById("imageHintWidth").value;
+        }
+        if(document.getElementById("imageHintHeight").value != ""){
+                height = document.getElementById("imageHintHeight").value;
+        }
+        output.innerHTML = "<div>" + document.getElementById("hintText").value + "</div><br>" +
+                                "<image src=" + document.getElementById("imageHintText").value +
+                                " width=" + width + "px" + 
+                                " height=" + height + "px>";
+}
+function sendTolerance(selection){
+        var output = document.getElementById("outputTolerance");
+	var tolVal = document.getElementById("toleranceText").value;
+	//They didn't want a tolerance, and have kept the input box blank.
+	if(selection == "none" && tolVal == ""){
+		output.innerHTML = "";
+	}
+	//They didn't want a tolerance, but inputed something and submitted.
+	else if(selection == "none" && tolVal != ""){
+	        output.innerHTML = "<br>You said you didn't want any tolerance, yet you entered a value!";    	
+	}
+	//They want a tolerance, but d	idn't input anything.
+	else if(selection !="none" && tolVal == ""){
+		output.innerHTML ="<br>You said you wanted tolerance, but you left the tolerance field blank!";
+	}
+	//They want a tolerance, and inputed a value then submitted.
+	else{ 
+		output.innerHTML = "<br>You submitted a tolerance level of: " + tolVal;
+	}
+}
+function getSelectedType(){
+	var selectedType = document.getElementsByName('tolType');
+	var selectedType_value;
+	for(var i = 0; i < selectedType.length; i++){
+   		if(selectedType[i].checked){
+     		   selectedType_value = selectedType[i].value;
+    		}
+	}
+	return selectedType_value;
+}
+function generatePerl()
+{
+	addKnowlHelper();
+	var question = document.getElementById("knowlOutput").innerHTML;
+	var answer = document.getElementById("answer").value;
+	var solution = document.getElementById("solution").value;
+	solution = checkDollarSigns("solution");
+	var section1 = '<br><br>DOCUMENT();\n<br>\
+	\n<br>\
+	loadMacros(\n<br>\
+	"PGstandard.pl",\n<br>\
+	"MathObjects.pl",\n<br>\
+	);\n<br>\
+	\n<br>\
+	TEXT(beginproblem());\n<br>\
+	\n<br>\
+    	Context()->strings->add("';
+    
+   	var section2 = '"=>{});\n<br>';
+	//$answer = String("';
+	var section2_String = '$answer = String("';
+	var section2_Real ='$answer = Real("';
+	var section3 ='");\n<br>\
+	\n<br>\
+	Context()->texStrings;\n<br>\
+	BEGIN_TEXT\n<br>';
+	
+	var section4 = "<br>$BR\n<br>\
+	$BR\n<br>\
+	\\{ ans_rule(20) \\}\n<br>\
+	END_TEXT\n<br>\
+	Context()->normalStrings;\n<br>\
+	\n<br>\
+	$showPartialCorrectAnswers = 1;\n<br>\
+	\n<br>\
+	ANS( $answer-> cmp() );\n<br>\
+	\n<br>\
+	Context()->texStrings;\n<br>\
+	SOLUTION(EV3(<<'END_SOLUTION'));\n<br>\
+	$PAR SOLUTION $PAR\n<br>";
+	
+	var section5 = "\n<br>END_SOLUTION\n<br>\
+	Context()->normalStrings;\n<br>\
+	\n<br>\
+	ENDDOCUMENT();";
+	var pgString = section1 + answer + section2 + section2_String + answer + section3 + question + section4 + answer + solution + section5;
+//Quan from Team Brandon: 
+//I think there is a bug in your code in the line above so I fixed it but not sure. 
+//Check it please
+	/*Tolerance requires a numeric input.  Currently, the code is always a 		 *string, which is problematic.  Therefore, as long as there is
+	 */
+	if(usingPGML(pgString)){}
+	else{	
+		if(getSelectedType() == "none"){
+			pgString = section1 + answer + section2 +
+				section2_String + answer + section3 +
+				question + section4 + solution + section5;
+		}	
+		else{ 
+			pgString = section1 + answer + section2 + section2_Real + answer + section3 + 					question + section4 + solution + section5;
+		}
+	}
+	
+	//Insert hint/image PG code, if there is a hint or image
+        if(document.getElementById("hintText").value != "" || 
+                document.getElementById("imageHintText").value != ""
+                        || document.getElementById("imageText").value != ""){
+                        pgString = translateToPG(pgString,
+                                document.getElementById("hintText").value, 
+                                        [document.getElementById("imageHintText").value, document.getElementById("imageHintWidth").value, document.getElementById("imageHintHeight").value], 
+                                                [document.getElementById("imageText").value, document.getElementById("imageWidth").value, document.getElementById("imageHeight").value]);
+        }
+	if(getSelectedType() != "none" && 
+		document.getElementById("toleranceText").value != ""){
+		pgString = checkPGorPGML(pgString, 
+			document.getElementById("toleranceText").value,
+			getSelectedType());
+	}
+	var output = document.getElementById("codeOutput"); 
+	output.innerHTML = "All the Perl code is : <span id='code'>"  + pgString + "</span>";
+	
+	// Save the state and make the updates in WebWorK
+	saveState();
+}
+</script> 
+
+
+
+<header> 
+<h1> 
+	<img src = "mlogo.png" height = 70 width = 80 float: center>
+	Mathematical Association of America <br>
+	WeBWorK Question Creator
+</h1> 
+</header><br>
+<!-- When clicked this button will call the function in sendProblemToWebwork.js. If you need to change the generatePerl function, do it in that file. !-->
+<div id = "codeArea">
+<fieldset>
+	<legend> Click the button to see a preview of the Perl generated for this question </legend>
+	<button id="submitButton" class="fillinblanks" >Submit <br></button>
+	<p>NOTE: Make sure to close all other webwork tabs before you<br/> click the submit button or else your changes will not be saved.</p> 
+	<br> 
+	<div id="codeOutput">
+	</div>
+</div>
+
+<div id = "userInput">
+
+
+
+<!--Random Field-->
+<fieldset>
+        <legend> Do you want to add randomization to this problem? </legend>
+        <!-- yes/no radio buttons -->
+        <input type="radio" name="randType" value="YesRand" 
+                onclick = "showRandom()" id = "randYes">
+                <label for="randYes">Yes</label>
+        <input type="radio" name="randType" value="NoRand" checked                      onclick="hideRandom()" id = "randNo">
+                <label for="randNo">No</label><br>
+        <!-- Variable Checkboxes -->
+        <div id = "acceptRandoms" style = "display:none;">
+                <br>Check the type of randomizations you want:<br>
+                <input type="checkbox" name="randomType" id="numValue" 
+                        value="numRand" onclick="showNumValRand()">
+                        <label for="numValue">Numerical Values</label><br>
+                <input type="checkbox" name="randomType" id="trigValue" 
+                        value="trigRand" onclick="showTrigRand()">
+                        <label for="trigValue">Trigometric Functions</label><br>
+                <input type="checkbox" name="randomType" id="reOpValue" 
+                        value="ReRand" onclick="showReOpRand()">
+                        <label for ="reOpValue">Relational Operator</label><br>
+        </div>
+        <!-- Numerical Value Section -->
+        <div id = "randNumValues" style = display:none;">
+        <table id = "numTable">
+                <tr id = "numRow">
+                <td>
+                <br>Enter the range in which the random numbers should be                               pulled from.<br>
+                <div class = "tooltip">
+                        <span class = "tooltiptext">Enter the lowest number in                                  the range</span>
+                        <textarea name = "randRangeStart" placeholder = "Start"                                         rows = "1" cols = "15"></textarea>
+                </div>
+                <div class = "tooltip">
+                        <span class = "tooltiptext">Enter the highest number in                                 the range</span>
+                        <textarea name = "randRangeEnd" placeholder = "End" rows =                                      "1" cols = "15"></textarea> 
+                </div>
+                <br>
+                <div class="tooltip">
+                        Enter the value you would like to increment the                                         randomization by.<br>
+                        <span class = "tooltiptext">For example: in a range of                                  (1,5) with an increment value of 0.5, you could                                 get randomized values such as 1, 1.5, 2, 2.5,                                   etc. The default value is 1.</span>
+                        <textarea name="randIncrement" placeholder="Increments"                                 rows = "1" cols = "30">1</textarea><br>
+                </div>
+                <br>
+                <div class="tooltip">
+                        <span class = "tooltiptext">Add another random
+                                numerical value.</span>
+                        <button class="button" 
+                                onclick="addNewRow('numTable','numRow')">
+                               +</button>
+                </div>
+                <div class="tooltip">
+                        <span class = "tooltiptext">Remove the most recently                                    added random numerical value.</span>
+                        <button class="button" 
+                                onclick="deleteLastRow('numTable')">
+                                -</button>
+                </div>
+                </td>
+                </tr>
+        </table>
+        </div>
+        <!-- Trigometric Section -->
+        <div id = "randTrig" style = display:none;">
+        <br>Check the trig variables you would like to have randomized.
+        <table id = "trigTable">
+                <tr id = "trigRow">
+                <td><br>
+                <input type="checkbox" name="trigType"
+                        value="sin" id="sinRand" checked>
+                        <label for="sinRand">Sin </label>
+                <input type="checkbox" name="trigType"
+                        value="cos" id="cosRand" checked>
+                        <label for="cosRand">Cos </label>
+                <input type="checkbox" name="trigType"
+                        value="tan" id="tanRand" checked>
+                        <label for="tanRand">Tan </label><br>
+                <input type="checkbox" name="trigType"
+                        value="csc" id="cscRand">
+                        <label for="cscRand">Csc </label>
+                <input type="checkbox" name="trigType"
+                        value="sec" id="secRand">
+                        <label for="secRand">Sec </label>
+                <input type="checkbox" name="trigType"
+                        value="cot" id="cotRand">
+                        <label for="cotRand">Cot </label><br><br>
+
+                <div class="tooltip">
+                        <span class = "tooltiptext">Add another random
+                                trig variable.</span>
+                        <button class="button" 
+                                onclick="addNewRow('trigTable','trigRow')">
+                                +</button>
+                </div>
+                <div class="tooltip">
+                        <span class = "tooltiptext">Remove the most recently                                    added random trig variable.</span>
+                        <button class="button" 
+                                onclick="deleteLastRow('trigTable')">
+                                -</button>
+                </div>
+                 </td>
+                </tr>
+        </table>
+        </div>
+        <!-- Relational Operator Section -->
+        <div id = "randRegOp" style = display:none;">
+        <br>Choose the relational operators you would like to possibly                  have in your problem.<br>
+        <table id = "reOpTable">
+                <tr id = "reOpRow">
+                <td><br>
+                <input type="checkbox" name="roType"
+                        value="<" id="lessRand">
+                        <label for="lessRand">< </label>
+                <input type="checkbox" name="roType"
+                        value="<=" id="lessEqRand">
+                        <label for="lessRand">&#8804 </label><br>
+                <input type="checkbox" name="roType"
+                        value=">" id="greatRand">
+                        <label for="greatRand">> </label>
+                <input type="checkbox" name="roType"
+                        value=">=" id="greatEqRand">
+                        <label for="greatEqRand">&#8805 </label><br>
+                <input type="checkbox" name="roType"
+                        value="=" id="equalRand">
+                        <label for="EqualRand">= </label>
+                <input type="checkbox" name="roType"
+                        value="!=" id="notEqualRand">
+                        <label for="notEqualRand">&#8800 </label><br><br>
+                <div class="tooltip">
+                        <span class = "tooltiptext">Add another random
+                                relational operator.</span>
+                        <button class="button" 
+                                onclick="addNewRow('reOpTable','reOpRow')">
+                                +</button>
+                </div>
+                <div class="tooltip">
+                        <span class = "tooltiptext">Remove the most recently                                    added random relational operator.</span>
+                        <button class="button" 
+                                onclick="deleteLastRow('reOpTable')">
+                                -</button><br>
+                </div>
+                </td>
+                </tr>
+        </table>
+        </div>
+        <div id = "finalRandField" style = "display:none;">
+                <br><button class = "button"
+                        onclick = "createRandomOutput()">Finish</button>
+                <br>
+                <div id = "randomResults"></div>
+        </div>
+</fieldset>
+
+
+
+<fieldset> 
+	<legend> Please type the question below : </legend> 
+	<p> <textarea id ="question" class="DuqWorkSave" rows="5" cols="50"></textarea><br>
+	<p id="knowlOutput" class="DuqWorkSave"></p>
+	<button onclick = "sendQuestion()" >Submit <br></button>
+	<p> Question Preview </p>
+	<div id = "outputQues"> 
+	</div>
+</fieldset> 
+
+<fieldset>
+	<legend> The answer for this question is : </legend> <br> 
+	<textarea id ="answer" class="DuqWorkSave" rows="1" cols="50"></textarea><br>
+	<button onclick = "sendAnswer()" >Submit <br> </button> 
+	<p> Answer Preview </p> 
+	<div id = "outputAns"> 
+	</div>
+</fieldset>
+
+<!--TOLERANCE FIELD-->
+<fieldset>
+        <legend> Do you want to include a tolerance value? </legend>
+	<div class="tooltip">
+		<span class="tooltiptext">This will allow you to set a tolerance value of "none", "numeric", or "percentage”.</span>
+		<div>
+			<input id="noTolerance" class="DuqWorkSave" type="radio" name="tolType" onclick = "sendTolerance(this.value)" value="none" checked>
+			<label for="tolNone">No Tolerance </label><br>
+		</div>
+		<div>
+			<input id="numericTolerance" class="DuqWorkSave" type="radio" name="tolType" onclick = "sendTolerance(this.value)" value="num">
+			<label for="tolNumeric">Numeric Value </label>
+		</div>
+		<div>
+			<input id="percentTolerance" class="DuqWorkSave" type="radio" name="tolType" onclick = "sendTolerance(this.value)" value="perc">
+			<label for="tolPercent">Percentage </label>
+		</div>
+		<p>If you want a tolerance, enter a value below.  If not, leave it blank!</p>
+		<p>Note: If you want a percentage, enter the number as a decimal (i.e. 15% -> 0.15)</p>
+	        <textarea id ="toleranceText" class="DuqWorkSave" rows = "1" cols = "50"></textarea>
+		<br>
+	</div>
+        <br>
+	<div class="tooltip">
+		<span class="tooltiptext">This will submit the tolerance you wish to have.</span>
+	        <button class = "button" onclick = "sendTolerance(getSelectedType())">Submit <br></button>
+	        <div id = "outputTolerance"></div>
+	</div>
+</fieldset>
+
+<fieldset> 
+	<legend> Enter an explanation of the solution below: </legend> 
+	<div class="tooltip">
+		<span class="tooltiptext">This is what the student will see for a solution</span>
+		<p> <textarea id ="solution" class="DuqWorkSave" rows="5" cols="50"></textarea><br>
+	</div>
+	<br>
+	<div class="tooltip">
+		<span class="tooltiptext">This will submit the solution.</span>
+		<button onclick = "sendSolution(),updateMathHint()" >Submit <br></button> 
+		<p> Solution Preview </p>
+		<div id = "outputSolution"> 
+		</div>
+	</div>
+</fieldset> 
+
+<title> Knowl Creator </title>
+<fieldset>
+    <legend>Knowl Creator/Searcher:</legend>
+		<p><small>*Use @ as separator for multiple knowl keyword, content, and search fields</small></p> 
+ Knowl creation keyword:<br>
+  <textarea id="theWord" class="DuqWorkSave" rows="1" cols="20"></textarea><br>
+ Knowl creation content:<br>
+  <textarea id="theDef" class="DuqWorkSave" rows="4" cols="50"></textarea><br><br>
+ Knowl search keyword:<br>
+  <textarea id="theSearch" class="DuqWorkSave" rows="1" cols="20"></textarea><br><br>
+		<p><small>*Use \\(math\\) or \\[displaymath\\] for Latex Expression<br>
+		*For example: \\(sin(x)\\)</small></p>
+</fieldset>
+
+<!--HINT FIELD-->
+<fieldset>
+        <legend> Enter a hint below: </legend>
+
+        <p>Enter text here:</p>
+	<div class="tooltip">
+        	<span class="tooltiptext">This is what the student will see when they click on "Need Help".</span>
+	        <textarea id ="hintText" class="DuqWorkSave" rows = "5" cols = "50"></textarea>
+	</div>
+        <br>
+
+        <p>Enter a URL for an externally hosted image here:<br>(Default size is 500x500)</p>
+	<div class="tooltip">
+		<span class="tooltiptext">This is the image that will appear when the student clicks on "Need Help".</span>
+		<textarea id ="imageHintText" class="DuqWorkSave" rows = "5" cols = "50"></textarea>
+	        <textarea id = "imageHintWidth" class="DuqWorkSave" placeholder = "width" rows = "1" cols = "7"></textarea>
+	        <textarea id = "imageHintHeight" class="DuqWorkSave" placeholder = "height" rows = "1" cols = "7"></textarea>
+	</div>
+        <br>
+	<div class="tooltip">
+		<span class="tooltiptext">This will allow you to preview the hint.</span>
+	        <button class = "button" onclick = "sendHint()">Hint preview</button>
+	        <p> Hint Preview </p>
+		<div id = "outputHint"></div>
+        </div>
+</fieldset>
+
+
+<!--GRAPHICS FIELD-->
+<fieldset>
+        <legend> Enter a URL for an externally hosted image to show in problem below:
+                <br>(Default size is 500x500)
+        </legend>
+	<div class="tooltip">
+		<span class="tooltiptext">This is the image that the student will see inside of the problem. Height and width are represented in pixels.</span>
+	        <textarea id ="imageText" class="DuqWorkSave" rows = "5" cols = "50"></textarea>
+	        <textarea id = "imageWidth" class="DuqWorkSave" placeholder = "width" rows = "1" cols = "7"></textarea>
+	        <textarea id = "imageHeight" class="DuqWorkSave" placeholder = "height" rows = "1" cols = "7"></textarea>
+	</div>
+	<br>
+	<div class="tooltip">
+		<span class="tooltiptext">This will allow you to preview the image.</span>
+	        <button class = "button" onclick = "sendImage()">Image preview</button>
+	        <p> Image Preview </p>
+		<div id = "outputImage"></div>
+        </div>
+</fieldset>
+
+</div>
+</body>
+
+<script type="text/javascript" src="../js/jquery.js"></script>
+<script type="text/javascript" src="../js/vendor/codemirror/codemirror.js"></script>
+
+<script type="text/javascript" src="js/insertKnowl.js"></script>
+<script type="text/javascript" src="js/ProblemEditing.js"></script>
+<script type="text/javascript" src="js/HintEditor.js"></script> 
+<script type="text/javascript" src="js/toleranceEditor.js"></script>
+<script type="text/javascript" src="js/sendProblemToWebwork.js"></script>
+<script type="text/javascript" src="js/problemSyntaxSimplification.js"></script>
+<script type="text/javascript" src="js/randomProblems.js"></script>
+<script type="text/javascript" src="js/randParam.js"></script>
+
+</html>
