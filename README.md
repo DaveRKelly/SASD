@@ -9,4 +9,5 @@ part of a software development team working on a product that is of interest to 
 than the members of the class. 
 
 The class project is to improve the functionality and user experience of WeBWorK (http://webwork.maa.org/).
-This repository serves as my contributions to the project.
+This repository serves as my scrum's contributions to the project along with my own. The fully contributed 
+repository can be found at https://github.com/DuquesneCOSC445W/webwork2 and https://github.com/DuquesneCOSC445W/pg
